@@ -18,154 +18,179 @@
     </style>
     <body>
         <div id="app" v-cloak>
-
-            <div class="container mt-5"> 
-                <div class="row">
+            
+            <div v-show="!signedIn">
+                <div class="container mt-5"> 
+                    <div class="row">
                         <div class="col-lg" style="text-align: center;">
-                        <h1 id="title">{{ titleText }}</h2>
-                        <p>{{ motd }}</p>
+                            <h1 id="title">{{ titleText }}</h2>
+                            <p>You are not signed in.</p>
+                            <a class="btn btn-primary" v-on:click="signIn()">Sign In with Google</a>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm d-flex">
-                        <div class="card w-100">
-                            <img src="pi.jpg" class="card-img-top" alt="pi.jpg">
-                            <div class="card-body">
-                                <h5 class="card-title">Device: Raspberry Pi</h5>
-                                <p class="card-text">The Raspberry Pi is based!</p>
-                                <a href="https://www.raspberrypi.org/" class="btn btn-primary">Learn More</a>
-                            </div>
+            <div v-show="signedIn">
+                <div class="container mt-5"> 
+                    <div class="row mb-4">
+                        <div class="col-lg" style="text-align: center;">
+                            <h1 id="title">{{ titleText }}</h2>
                         </div>
                     </div>
-                    <div class="col-sm d-flex">
-                        <div class="card w-100">
-                            <div class="card-body">
-                                <h5 class="card-title">Sensor</h5>
-                                <ul class="list-group">
-                                    <li class="list-group-item">Temperature: 40C </li>
-                                    <li class="list-group-item">Humidity: 50%</li>
-                                </ul>
+                </div>
+    
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm d-flex">
+                            <div class="card w-100">
+                                <img v-bind:src="photoURL" class="card-img-top" >
+                                <div class="card-body">
+                                    <h5 class="card-title">Hello, {{displayName}}!</h5>
+                                    <p class="card-text">{{email}}</p>
+                                    <a class="btn btn-primary" v-on:click="signOut()">Sign Out</a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-sm d-flex">
-                        <div class="card w-100">
-                            <div class="card-body">
-                                <h5 class="card-title">LED Status</h5>
-                                <table class="table">
-                                    <thead class="thead-light">
-                                        <tr>
-                                            <th scope="col">Color</th>
-                                            <th scope="col">Name</th>
-                                            <th scope="col">On</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <img class="icon" src="led.png" alt="led" style="background-color: lightcoral;">
-                                            </td> 
-                                            <td>Red</td> 
-                                            <td>
-                                                <div v-on:change="updateColor()" class="custom-control custom-switch">
-                                                    <input v-model="color.r" type="checkbox" class="custom-control-input" id="color-r">
-                                                    <label class="custom-control-label" for="color-r"></label>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <img class="icon" src="led.png" alt="led" style="background-color: lightgreen;">
-                                            </td> 
-                                            <td>Green</td> 
-                                            <td>
-                                                <div v-on:change="updateColor()" class="custom-control custom-switch">
-                                                    <input v-model="color.g" type="checkbox" class="custom-control-input" id="color-g">
-                                                    <label class="custom-control-label" for="color-g"></label>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <img class="icon" src="led.png" alt="led" style="background-color: lightskyblue;">
-                                            </td> 
-                                            <td>Blue</td> 
-                                            <td>
-                                                <div v-on:change="updateColor()" class="custom-control custom-switch">
-                                                    <input v-model="color.b" type="checkbox" class="custom-control-input" id="color-b">
-                                                    <label class="custom-control-label" for="color-b"></label>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <div class="btn-group" role="group">
-                                    <button v-on:click="selectAll(true); updateColor();" type="button" class="btn btn-secondary">Select All</button>
-                                    <button v-on:click="selectAll(false); updateColor();" type="button" class="btn btn-secondary">Deselect All</button>
+                        <!-- <div class="col-sm d-flex">
+                            <div class="card w-100">
+                                <img src="pi.jpg" class="card-img-top" alt="pi.jpg">
+                                <div class="card-body">
+                                    <h5 class="card-title">Device: Raspberry Pi</h5>
+                                    <p class="card-text">The Raspberry Pi is based!</p>
+                                    <a href="https://www.raspberrypi.org/" class="btn btn-primary">Learn More</a>
+                                </div>
+                            </div>
+                        </div> -->
+                        <div class="col-sm d-flex">
+                            <div class="card w-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">Sensor</h5>
+                                    <ul class="list-group">
+                                        <li class="list-group-item">Temperature: {{sensor.temperature}}C </li>
+                                        <li class="list-group-item">Humidity: {{sensor.humidity}}%</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm d-flex">
+                            <div class="card w-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">LED Status</h5>
+                                    <table class="table">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th scope="col">Color</th>
+                                                <th scope="col">Name</th>
+                                                <th scope="col">On</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <img class="icon" src="led.png" alt="led" style="background-color: lightcoral;">
+                                                </td> 
+                                                <td>Red</td> 
+                                                <td>
+                                                    <div v-on:change="updateColor()" class="custom-control custom-switch">
+                                                        <input v-model="color.r" type="checkbox" class="custom-control-input" id="color-r">
+                                                        <label class="custom-control-label" for="color-r"></label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <img class="icon" src="led.png" alt="led" style="background-color: lightgreen;">
+                                                </td> 
+                                                <td>Green</td> 
+                                                <td>
+                                                    <div v-on:change="updateColor()" class="custom-control custom-switch">
+                                                        <input v-model="color.g" type="checkbox" class="custom-control-input" id="color-g">
+                                                        <label class="custom-control-label" for="color-g"></label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <img class="icon" src="led.png" alt="led" style="background-color: lightskyblue;">
+                                                </td> 
+                                                <td>Blue</td> 
+                                                <td>
+                                                    <div v-on:change="updateColor()" class="custom-control custom-switch">
+                                                        <input v-model="color.b" type="checkbox" class="custom-control-input" id="color-b">
+                                                        <label class="custom-control-label" for="color-b"></label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div class="btn-group" role="group">
+                                        <button v-on:click="selectAll(true); updateColor();" type="button" class="btn btn-secondary">Select All</button>
+                                        <button v-on:click="selectAll(false); updateColor();" type="button" class="btn btn-secondary">Deselect All</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="container" style="display: none;">
-                <div class="row">
-                    <div class="col-sm">
-                        <form v-on:change="updateColor()">
-                            <label v-bind:class="{active: color.r}">
-                                <input type="checkbox" v-model="color.r" > Red
-                            </label>
-                            <label v-bind:class="{active: color.g}">
-                                <input type="checkbox" v-model="color.g"> Green
-                            </label>
-                            <label v-bind:class="{active: color.b}">
-                                <input type="checkbox" v-model="color.b"> Blue
-                            </label>
-                            <button v-if="color.r && color.g && color.b" type="button" v-on:click="selectAll(false); updateColor()">Deselect All</button>
-                            <button v-else type="button" v-on:click="selectAll(true); updateColor()">Select All</button>
-                        </form>
-                    </div>
-                    <div class="col-sm">
-                        <p v-if="color.r || color.g || color.b">Selected Values: {{ color }} </p>
-                        <p v-else>No colors are selected.</p>
-                    </div>
-                    <div class="col-sm">
-                        <p>Temperature: </p>
-                        <p>Humidity: </p>
+    
+                <div class="container" style="display: none;">
+                    <div class="row">
+                        <div class="col-sm">
+                            <form v-on:change="updateColor()">
+                                <label v-bind:class="{active: color.r}">
+                                    <input type="checkbox" v-model="color.r" > Red
+                                </label>
+                                <label v-bind:class="{active: color.g}">
+                                    <input type="checkbox" v-model="color.g"> Green
+                                </label>
+                                <label v-bind:class="{active: color.b}">
+                                    <input type="checkbox" v-model="color.b"> Blue
+                                </label>
+                                <button v-if="color.r && color.g && color.b" type="button" v-on:click="selectAll(false); updateColor()">Deselect All</button>
+                                <button v-else type="button" v-on:click="selectAll(true); updateColor()">Select All</button>
+                            </form>
+                        </div>
+                        <div class="col-sm">
+                            <p v-if="color.r || color.g || color.b">Selected Values: {{ color }} </p>
+                            <p v-else>No colors are selected.</p>
+                        </div>
+                        <div class="col-sm">
+                            <p>Temperature: </p>
+                            <p>Humidity: </p>
+                        </div>
                     </div>
                 </div>
+                <table class="table" style="display: none;">
+                    <thead>
+                      <tr>
+                        <th scope="col">LED Color</th>
+                        <th scope="col">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th scope="row">Red</th>
+                        <td>{{ color.r }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Green</th>
+                        <td>{{ color.g }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Blue</th>
+                        <td>{{ color.b }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
             </div>
-            <table class="table" style="display: none;">
-                <thead>
-                  <tr>
-                    <th scope="col">LED Color</th>
-                    <th scope="col">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row">Red</th>
-                    <td>{{ color.r }}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Green</th>
-                    <td>{{ color.g }}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Blue</th>
-                    <td>{{ color.b }}</td>
-                  </tr>
-                </tbody>
-              </table>
+
         </div>
     </body>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.21.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.21.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.21.0/firebase-auth.js"></script>
     <script>
         var firebaseConfig = {
             apiKey: "AIzaSyBcOondutkoewABPxeNLS0q0P4sRLgcU2k",
@@ -180,6 +205,9 @@
         firebase.initializeApp(firebaseConfig);
         database = firebase.database()
 
+        auth = firebase.auth()
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
         var vm = new Vue({
             el: "#app",
             data: {
@@ -189,10 +217,34 @@
                     r: false,
                     g: false,
                     b: false
-                }
+                },
+                sensor: {
+                    temperature: 0.0,
+                    humidity: 0.0,
+                },
+                signedIn: false,
+                email: "none",
+                photoURL: "pi.jpg",
+                displayName: "Raspberry Pi",
             },
             created: function() {
                 this.setupColorListener();
+                this.setupSensorListener();
+
+                auth.onAuthStateChanged(user => {
+                    if (user){
+                        this.signedIn = true;
+                        this.email = user.email;
+                        this.photoURL = user.photoURL;
+                        this.displayName = user.displayName;
+                    }
+                    else{
+                        this.signedIn = false;
+                        this.email = "none";
+                        this.photoURL = "pi.jpg";
+                        this.displayName = "Raspberry Pi";
+                    }
+                });
             },
             methods: {
                 selectAll: function(value) {
@@ -206,10 +258,27 @@
                         vm.color = snapshot.val();
                     });
                 },
+                setupSensorListener: function() {
+                    var colorDataRef = database.ref('data/sensor');
+                    colorDataRef.on('value', function(snapshot) {
+                        vm.sensor = snapshot.val();
+                    });
+                },
                 updateColor: function() {
                     database.ref('data/color').set(this.color);
-                }
-            },
+                },
+                signIn: function () {
+                    var provider = new firebase.auth.GoogleAuthProvider();
+                    auth.signInWithPopup(provider).then(function(result) {
+                        console.log( "signed in as: "+result.user.email );
+                    });
+                },
+                signOut: function () {
+                    auth.signOut().then(function() {
+                        console.log( "signed out" );
+                    });
+                },
+            }
         });
     </script>
 </html>
