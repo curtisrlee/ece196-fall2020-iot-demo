@@ -23,7 +23,7 @@
                 <div class="container mt-5"> 
                     <div class="row">
                         <div class="col-lg" style="text-align: center;">
-                            <h1 id="title">{{ titleText }}</h2>
+                            <h1 id="title">{{ titleText }}</h1>
                             <p>You are not signed in.</p>
                             <a class="btn btn-primary" v-on:click="signIn()">Sign In with Google</a>
                             <a class="btn btn-primary" href="https://curtisrlee.github.io/ece196-fall2020-iot/">See Documentation</a>
@@ -43,7 +43,7 @@
                 </div>
     
                 <div class="container">
-                    <div class="row">
+                    <div class="row mb-4">
                         <div class="col-sm d-flex">
                             <div class="card w-100">
                                 <img v-bind:src="photoURL" class="card-img-top" >
@@ -54,16 +54,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- <div class="col-sm d-flex">
-                            <div class="card w-100">
-                                <img src="pi.jpg" class="card-img-top" alt="pi.jpg">
-                                <div class="card-body">
-                                    <h5 class="card-title">Device: Raspberry Pi</h5>
-                                    <p class="card-text">The Raspberry Pi is based!</p>
-                                    <a href="https://www.raspberrypi.org/" class="btn btn-primary">Learn More</a>
-                                </div>
-                            </div>
-                        </div> -->
                         <div class="col-sm d-flex">
                             <div class="card w-100">
                                 <div class="card-body">
@@ -134,57 +124,32 @@
                             </div>
                         </div>
                     </div>
-                </div>
-    
-                <div class="container" style="display: none;">
-                    <div class="row">
-                        <div class="col-sm">
-                            <form v-on:change="updateColor()">
-                                <label v-bind:class="{active: color.r}">
-                                    <input type="checkbox" v-model="color.r" > Red
-                                </label>
-                                <label v-bind:class="{active: color.g}">
-                                    <input type="checkbox" v-model="color.g"> Green
-                                </label>
-                                <label v-bind:class="{active: color.b}">
-                                    <input type="checkbox" v-model="color.b"> Blue
-                                </label>
-                                <button v-if="color.r && color.g && color.b" type="button" v-on:click="selectAll(false); updateColor()">Deselect All</button>
-                                <button v-else type="button" v-on:click="selectAll(true); updateColor()">Select All</button>
-                            </form>
+                    <div class="row mb-4">
+                        <div class="col-sm-4 d-flex">
+                            <div class="card w-100">
+                                <img src="pi.jpg" class="card-img-top" alt="pi.jpg">
+                                <div class="card-body">
+                                    <h5 class="card-title">Device: Raspberry Pi</h5>
+                                    <p class="card-text">The Raspberry Pi is based!</p>
+                                    <a href="https://www.raspberrypi.org/" class="btn btn-primary">Learn More</a>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-sm">
-                            <p v-if="color.r || color.g || color.b">Selected Values: {{ color }} </p>
-                            <p v-else>No colors are selected.</p>
-                        </div>
-                        <div class="col-sm">
-                            <p>Temperature: </p>
-                            <p>Humidity: </p>
+                        <div class="col-sm-8 d-flex">
+                            <div class="card w-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">Chart</h5>
+                                    <canvas id="temperatureChart" style="margin: auto;"></canvas>
+                                    <div class="btn-group" role="group">
+                                        <button v-on:click="addData(temperatureChart, 'Push', 0);" type="button" class="btn btn-secondary">Push</button>
+                                        <button v-on:click="removeData(temperatureChart)" type="button" class="btn btn-secondary">Pop</button>
+                                        <button v-on:click="clearChart(temperatureChart)" type="button" class="btn btn-secondary">Clear</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <table class="table" style="display: none;">
-                    <thead>
-                      <tr>
-                        <th scope="col">LED Color</th>
-                        <th scope="col">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th scope="row">Red</th>
-                        <td>{{ color.r }}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Green</th>
-                        <td>{{ color.g }}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Blue</th>
-                        <td>{{ color.b }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
             </div>
 
         </div>
@@ -193,6 +158,7 @@
     <script src="https://www.gstatic.com/firebasejs/7.21.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.21.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.21.0/firebase-auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
     <script>
         var firebaseConfig = {
             apiKey: "AIzaSyBcOondutkoewABPxeNLS0q0P4sRLgcU2k",
@@ -228,6 +194,7 @@
                 email: "none",
                 photoURL: "pi.jpg",
                 displayName: "Raspberry Pi",
+                temperatureChart,
             },
             created: function() {
                 this.setupColorListener();
@@ -248,6 +215,24 @@
                     }
                 });
             },
+            mounted: function() {
+                var ctx = document.getElementById('temperatureChart').getContext('2d');
+                this.temperatureChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{ 
+                            data: [],
+                            label: "Temperature",
+                            borderColor: "#3e95cd",
+                            fill: false,
+                        }]
+                    },
+                    options: {}
+                });
+
+                this.setupGraphListener();
+            },
             methods: {
                 selectAll: function(value) {
                     this.color.r = value;
@@ -266,6 +251,26 @@
                         vm.sensor = snapshot.val();
                     });
                 },
+                setupGraphListener: function() {
+                    var addSnapshotToGraph = function(snapshot) {
+                        values = snapshot.val()
+                        console.log(values);
+                        timestamp = vm.formatTimestamp(values.timestamp);
+                        temperature = values.temperature;
+                        vm.addData(vm.temperatureChart, timestamp, temperature)
+                    }
+                    var recordDataRef = database.ref('data/records');
+                    recordDataRef.limitToLast(5).on('child_added', addSnapshotToGraph);
+                    recordDataRef.on('child_changed', addSnapshotToGraph);
+                },
+                formatTimestamp: function(unixTimestamp){
+                    // https://stackoverflow.com/questions/847185/convert-a-unix-timestamp-to-time-in-javascript
+                    var date = new Date(unixTimestamp);
+                    var hours = date.getHours();
+                    var minutes = "0" + date.getMinutes();
+                    var seconds = "0" + date.getSeconds();
+                    return hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+                },
                 updateColor: function() {
                     database.ref('data/color').set(this.color);
                 },
@@ -280,8 +285,31 @@
                         console.log( "signed out" );
                     });
                 },
+                addData: function (chart, label, data) {
+                    chart.data.labels.push(label);
+                    chart.data.datasets.forEach((dataset) => {
+                        dataset.data.push(data);
+                    });
+                    chart.update();
+                },
+                removeData: function (chart) {
+                    chart.data.labels.pop();
+                    chart.data.datasets.data.pop();
+                    chart.update();
+                },
+                clearChart: function (chart) {
+                    chart.data.labels = [];
+                    chart.data.datasets.forEach((dataset) => {
+                        dataset.data = [];
+                    });
+                    chart.update();
+                },
             }
         });
+
+
+
+
     </script>
 </html>
 
