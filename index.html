@@ -154,6 +154,8 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="row mb-4">
                         <div class="col-8">
                             <div class="card h-100 w-100 shadow-sm">
                                 <div class="card-body">
@@ -211,6 +213,9 @@
                 photoURL: "pi.jpg",
                 displayName: "Raspberry Pi",
                 temperatureChart,
+                initialPosition,
+                map,
+                marker
             },
             created: function() {
                 this.setupColorListener();
@@ -230,15 +235,6 @@
                         this.displayName = "Raspberry Pi";
                     }
                 });
-
-                const initialPosition = { lat: 32.87974007930248, lng: -117.23691876965819 };
-
-                const map = new google.maps.Map(document.getElementById('map'), {
-                center: initialPosition,
-                zoom: 17
-                });
-
-                const marker = new google.maps.Marker({ map, position: initialPosition });
             },
             mounted: function() {
                 var ctx = document.getElementById('temperatureChart').getContext('2d');
@@ -257,6 +253,16 @@
                 });
 
                 this.setupGraphListener();
+                
+
+                initialPosition = { lat: 32.87974007930248, lng: -117.23691876965819 };
+
+                map = new google.maps.Map(document.getElementById('map'), {
+                center: initialPosition,
+                zoom: 17
+                });
+
+                marker = new google.maps.Marker({ map, position: initialPosition });
             },
             methods: {
                 selectAll: function(value) {
